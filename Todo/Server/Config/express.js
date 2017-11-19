@@ -5,26 +5,27 @@ var glob= require('glob');
 var mongoose= require('mongoose');
 var bluebird= require('bluebird');
 var http = require("http");
+var cors = require('cors');
+var bodyParser = require('body-parser');
+
+// app.use(function(req, res, next){
+//   console.log('Request from ' + req.ip);
+//   next();
+// });
 
 
-var app = express();
+// app.get('/',function(req,res){
+// 	res.send('Hello World!');
+// });
 
-app.use(function(req, res, next){
-  console.log('Request from ' + req.ip);
-  next();
-});
+// http.createServer(app).listen(5000, function(){
+// 	console.log('Express server listening on port ' + 3000);
+// });
 
-app.get('/',function(req,res){
-	res.send('Hello World!');
-});
-
-http.createServer(app).listen(5000, function(){
-	console.log('Express server listening on port ' + 3000);
-});
-
-var express = require('express');
+// var express = require('express');
 
 module.exports = function (app, config) {
+    app.use(cors({origin: 'http://localhost:9000'}));
     logger.log("Loading Mongoose functionality");
     mongoose.Promise = require('bluebird');
     mongoose.connect(config.db, {useMongoClient: true});
@@ -51,6 +52,11 @@ module.exports = function (app, config) {
     console.log('Request from ' + req.connection.remoteAddress);
     next();
   });  
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+
   var models = glob.sync(config.root + '/app/models/*.js');
   models.forEach(function (model) {
     require(model);
@@ -69,13 +75,22 @@ var controllers = glob.sync(config.root + '/app/controllers/*.js');
       res.send('404 Not Found');
     });
   
-    app.use(function (err, req, res, next) {
-      console.error(err.stack);
-      res.type('text/plan');
-      res.status(500);
-      res.send('500 Sever Error');
-    });
-  
+    //app.use(function (err, req, res, next) {
+      //console.error(err.stack);
+     // res.type('text/plan');
+     // res.status(500);
+    //  res.send('500 Sever Error');
+   // });
+   app.use(function (err, req, res, next) {
+    console.log(err);
+    if (process.env.NODE_ENV !== 'test') logger.log(err.stack,'error');
+    res.type('text/plan');
+    if(err.status){
+      res.status(err.status).send(err.message);
+    } else {
+      res.status(500).send('500 Sever Error');
+    }
+  });
     console.log("Starting application");
   
   };

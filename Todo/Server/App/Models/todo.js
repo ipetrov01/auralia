@@ -1,7 +1,7 @@
-var mongoose= require('mongoose');
-var Schema= mongoose.schema;
+var Mongoose= require('mongoose');
+var Schema= Mongoose.Schema;
 
-var TodoSchema= new Schema9({
+var TodoSchema= new Schema({
     userId: {type: Schema.Types.ObjectId, required: true},
     todo: {type: String, Required: true},
     description:{type: String},
@@ -13,4 +13,5 @@ var TodoSchema= new Schema9({
 
 
 })
-model.exports=Mongoose.model('Todo', TodoSchema);
+
+module.exports=Mongoose.model('Todo', TodoSchema);

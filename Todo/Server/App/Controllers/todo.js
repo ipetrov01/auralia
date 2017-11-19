@@ -2,9 +2,10 @@ var express = require('express'),
 router = express.Router(),
 logger = require('../../config/logger'),
 mongoose = require('mongoose'),
-todo = mongoose.model('Todo')
-;
+todo = mongoose.model('Todo'),
+passport = require('passport');
  
+var requireAuth = passport.authenticate('jwt', { session: false });
 
 module.exports = function (app, config) {
 app.use('/api', router);
@@ -56,7 +57,7 @@ router.route('/users').post(function(req, res, next){
         });
   })
  
-router.route('/users/:userId').put(function(req, res, next){
+router.route('/todo/:todo').put(function(req, res, next){
     logger.log('Update todo', 'verbose');
    
     todo.findOneAndUpdate({_id: req.params.userId},         
@@ -70,7 +71,7 @@ router.route('/users/:userId').put(function(req, res, next){
     });
  
 
-router.route('/users/:userId').delete(function(req, res, next){
+router.route('/todo/:todo').delete(function(req, res, next){
     logger.log('Delete todo', 'verbose');
    
     todo.remove({ _id: req.params.userId })
